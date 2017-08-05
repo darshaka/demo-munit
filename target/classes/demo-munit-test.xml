@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8086" doc:name="HTTP Listener Configuration"/>
+    <flow name="demo-munit-testFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/country" doc:name="HTTP"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params'.countryCode]" doc:name="Set Payload"/>
+        <flow-ref name="decision-Flow" doc:name="decision-Flow"/>
+        <choice doc:name="Choice">
+            <when expression="#['Sri Lanka'.equals(flowVars.country)]">
+                <set-payload value="#[flowVars.country] is a developing country" doc:name="Set Payload"/>
+            </when>
+            <otherwise>
+                <set-payload value="#[flowVars.country] is a developed country" doc:name="Set Payload"/>
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="decision-Flow">
+        <choice doc:name="Choice">
+            <when expression="#['SL'.equals(payload)]">
+                <flow-ref name="decision-Sub_Flow1" doc:name="decision-Sub_Flow1"/>
+            </when>
+            <otherwise>
+                <flow-ref name="decision-Sub_Flow2" doc:name="decision-Sub_Flow2"/>
+            </otherwise>
+        </choice>
+    </flow>
+    <sub-flow name="decision-Sub_Flow1">
+        <set-variable variableName="country" value="Sri Lanka" doc:name="Variable"/>
+    </sub-flow>
+    <sub-flow name="decision-Sub_Flow2">
+        <set-variable variableName="country" value="New Zealand" doc:name="Variable"/>
+    </sub-flow>
+</mule>
