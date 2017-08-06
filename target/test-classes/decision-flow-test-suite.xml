@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  	xmlns:mock="http://www.mulesoft.org/schema/mule/mock" 
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd">
+
+    <munit:config name="munit" doc:name="MUnit configuration"/>
+    
+    <spring:beans>
+        <spring:import resource="classpath:demo-munit-test.xml"/>
+    </spring:beans>
+    
+    <munit:test name="decision-flow-test-suiteTest1" description="MUnit Test">
+        <set-payload doc:name="Set Payload" value="#['SL']"/>
+        <flow-ref name="decision-Flow" doc:name="decision-Flow"/>
+        <mock:verify-call doc:name="Verify Call" messageProcessor="mule:sub-flow">
+            <mock:with-attributes>
+                <mock:with-attribute name="name" whereValue="#[matchContains('decision-Sub_Flow1')]"/>
+            </mock:with-attributes>
+        </mock:verify-call>
+    </munit:test>
+    
+    <munit:test name="decision-flow-test-suiteTest2" description="MUnit Test">
+        <set-payload doc:name="Set Payload" value="#['NZ']"/>
+        <flow-ref name="decision-Flow" doc:name="decision-Flow"/>
+        <mock:verify-call doc:name="Verify Call" messageProcessor="mule:sub-flow">
+            <mock:with-attributes>
+                <mock:with-attribute name="name" whereValue="#[matchContains('decision-Sub_Flow2')]"/>
+            </mock:with-attributes>
+        </mock:verify-call>
+    </munit:test>
+    
+    <munit:test name="decision-flow-flowVars-1-suiteTest" description="MUnit Test">
+        <set-payload doc:name="Set Payload" value="#['SL']"/>
+        <flow-ref name="decision-Flow" doc:name="decision-Flow"/>
+        <munit:assert-on-equals expectedValue="#['Sri Lanka']" actualValue="#[flowVars.country]" doc:name="Assert Equals" message="Did not get expected value. expected value is 'Sri Lanka' but received #[flowVars.country]"/>
+    </munit:test>
+    
+    <munit:test name="decision-flow-flowVars-2-suiteTest" description="MUnit Test">
+        <set-payload doc:name="Set Payload" value="#['NZ']"/>
+        <flow-ref name="decision-Flow" doc:name="decision-Flow"/>
+        <munit:assert-on-equals expectedValue="#['New Zealand']" actualValue="#[flowVars.country]" doc:name="Assert Equals" message="Did not get expected value. expected value is 'Sri Lanka' but received #[flowVars.country]"/>
+    </munit:test>
+    
+</mule>
